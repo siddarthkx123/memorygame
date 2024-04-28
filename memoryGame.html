@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Game</title>
+<style>
+  .card {
+    width: 100px;
+    height: 100px;
+    background-color: #ccc;
+    margin: 5px;
+    display: inline-block;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container"></div>
+<button id="start-btn">Start Game</button>
+<button id="restart-btn" style="display:none;">Restart Game</button>
+<div id="score">Score: 0</div>
+
+<script>
+  // Array of colors
+  const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "magenta", "pink", "brown"];
+  let shuffledColors = [];
+
+  // Variables to track game state
+  let selectedCards = [];
+  let score = 0;
+
+  // Function to shuffle colors
+  function shuffle(array) {
+    let currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex !== 0) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  }
+
+  // Function to create game cards
+  function createCards() {
+    const gameContainer = document.getElementById("game-container");
+    shuffledColors.forEach(color => {
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.dataset.color = color;
+      gameContainer.appendChild(card);
+    });
+  }
+
+  // Function to handle card click
+  function handleCardClick(event) {
+    const clickedCard = event.target;
+    if (selectedCards.length < 2 && !selectedCards.includes(clickedCard)) {
+      // Flip the card
+      clickedCard.style.backgroundColor = clickedCard.dataset.color;
+      selectedCards.push(clickedCard);
+
+      if (selectedCards.length === 2) {
+        // Check for match
+        const [firstCard, secondCard] = selectedCards;
+        if (firstCard.dataset.color === secondCard.dataset.color) {
+          // Match found
+          score++;
+          document.getElementById("score").textContent = "Score: " + score;
+          selectedCards = [];
+        } else {
+          // No match, flip cards back after 1 second
+          setTimeout(() => {
+            selectedCards.forEach(card => {
+              card.style.backgroundColor = "#ccc";
+            });
+            selectedCards = [];
+          }, 1000);
+        }
+      }
+    }
+  }
+
+  // Function to start the game
+  function startGame() {
+    shuffledColors = shuffle([...colors, ...colors]);
+    createCards();
+    document.getElementById("start-btn").style.display = "none";
+    document.getElementById("restart-btn").style.display = "block";
+  }
+
+  // Function to restart the game
+  function restartGame() {
+    document.getElementById("game-container").innerHTML = "";
+    score = 0;
+    document.getElementById("score").textContent = "Score: " + score;
+    startGame();
+  }
+
+  // Event listeners
+  document.getElementById("start-btn").addEventListener("click", startGame);
+  document.getElementById("restart-btn").addEventListener("click", restartGame);
+  document.getElementById("game-container").addEventListener("click", handleCardClick);
+</script>
+
+</body>
+</html>
